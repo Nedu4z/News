@@ -69,7 +69,7 @@ contract Token {
         emit Approval(msg.sender, _spender, _value);
         return true;
     }
-    function transferfrom(
+    function transferFrom(
         address _from,
         address _to,
         uint256 _value
