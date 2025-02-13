@@ -130,7 +130,7 @@ describe('Deployment', () => {
 
     describe('Success', () => {
         beforeEach(async () => {
-            transaction = await token.connect(exchange).transferfrom(deployer.address, receiver.address, amount)
+            transaction = await token.connect(exchange).transferFrom(deployer.address, receiver.address, amount)
             result = await transaction.wait()
         })
         it('Transfer token balances', async () => {
