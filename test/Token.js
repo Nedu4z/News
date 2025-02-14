@@ -153,7 +153,7 @@ describe('Deployment', () => {
     })
     describe('Failure', async () => {
         const invalidAmount = tokens(100000000)
-        await expect(token.connect(exchnage).transferfrom(deployer.address, receiver.address, invalidAmount)).to.be.reverted
+        await expect(token.connect(exchnage).transferFrom(deployer.address, receiver.address, invalidAmount)).to.be.reverted
 
     })
   })

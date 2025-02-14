@@ -55,7 +55,7 @@ contract Exchange {
             address tokenGet; //Address of the token they receieve
             uint256 amountGet; //Amount they receieve
             address tokenGive; //Address of the token they give
-            uint256 amountGive; //Amount they recieve
+            uint256 amountGive; //Amount they receive
             uint256 timestamp;//when order was created
     }
 
@@ -70,7 +70,7 @@ contract Exchange {
         require(Token(_token).transferFrom(msg.sender, address(this), _amount));
         //Update user balance
         tokens[_token][msg.sender] = tokens[_token][msg.sender] + _amount;
-        //Exit an event
+        //Emit an event
         emit Deposit(_token, msg.sender, _amount, tokens[_token][msg.sender]);
     }
     function withdrawToken(address _token, uint256 _amount) public {
@@ -158,7 +158,7 @@ contract Exchange {
     }
     function fillOrder(uint256 _id) public {
         // 1. Must be valid orderId
-        require(_id > 0 && _id <= orderCount, "Order doest not exist");
+        require(_id > 0 && _id <= orderCount, "Order does not exist");
         // 2. Order cant be filled
         require(!orderFilled[_id]);
         // 3. Order cant be cancelled
@@ -209,7 +209,7 @@ contract Exchange {
 
         tokens[_tokenGive][_user] = tokens[_tokenGive][_user] - _amountGive;
         tokens[_tokenGive][msg.sender] =
-            tokens[_tokenGive][msg.sender] =
+            tokens[_tokenGive][msg.sender] +
             _amountGive;
 
             // Emit trade
