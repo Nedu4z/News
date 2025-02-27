@@ -72,6 +72,7 @@ const Balance = () => {
             transferTokens(provider, exchange, 'Withdraw', token, token2TransferAmount, dispatch)
             setToken2TransferAmount(0)
         }
+        console.log("withdrawing tokens...")
     }
 
     useEffect(() => {
