@@ -83,6 +83,31 @@ export const loadBalances = async (exchange, tokens, account, dispatch) => {
     dispatch({ type: 'EXCHANGE_TOKEN_2_BALANCE_LOADED', balance })
 
 }
+// --------------------------------------------
+// TRANSFER TOKENS (DEPOSIT & WITHDRAWS)
+
+export const loadAllOrders = async (provider, exchange, dispatch) => {
+
+    const block = await provider.getBlockNumber()
+
+    // Fetch canceled orders
+    const cancelStream = await exchange.queryFilter('Cancel', 0, block)
+    const cancelledOrders = cancelStream.map(event => event.args)
+
+    dispatch({ type: 'CANCELLED_ORDERS_LOADED', cancelledOrders })
+
+    // Fetch filled orders
+    const tradeStream = await exchange.queryFilter('Trade', 0, block)
+    const filledOrders = tradeStream.map(event => event.args)
+
+    dispatch({ type: 'FILLED_ORDERS_LOADED', filledOrders })
+
+    // Fetch all orders
+    const orderStream = await exchange.queryFilter('Order', 0, block)
+    const allOrders = orderStream.map(event => event.args)
+
+    dispatch({ type: 'ALL_ORDERS_LOADED', allOrders })
+}
 
 // --------------------------------------------
 // TRANSFER TOKENS (DEPOSIT & WITHDRAWS)
@@ -114,11 +139,11 @@ export const transferTokens = async (provider, exchange, transferType, token, am
 // --------------------------------------------
 // LOAD USER BALANCES (WALLET & EXCHANGE BALANCES)
 
-export const makeBuyOrder = async (provider, exchange, tokens, orderBy, dispatch) => {
+export const makeBuyOrder = async (provider, exchange, tokens, order, dispatch) => {
     const tokenGet = tokens[0].address
-    const amountGet = ethers.utils.parseUnits(orderBy.amount, 18)
+    const amountGet = ethers.utils.parseUnits(order.amount, 18)
     const tokenGive = tokens[1].address
-    const amountGive = ethers.utils.parseUnits((orderBy.amount * orderBy.price).toString(), 18)
+    const amountGive = ethers.utils.parseUnits((order.amount * order.price).toString(), 18)
 
     dispatch({ type: 'NEW_ORDER_REQUEST' })
 
