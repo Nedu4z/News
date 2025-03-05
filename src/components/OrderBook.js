@@ -1,4 +1,4 @@
-import { useSelector } from 'react-redux';
+import { useSelector } from 'react-redux'
 
 // Import Assets
 import sort from '../assets/sort.svg'
@@ -19,7 +19,7 @@ const OrderBook = () => {
         <div className="flex">
             
             {!orderBook || orderBook.sellOrders.length === 0 ? (
-            <p className='flex-center'>No Sell Orders</p>
+                <p className='flex-center'>No Sell Orders</p>
             ) : (
             <table className='exchange__orderbook--sell'>
                 <caption>Selling</caption>

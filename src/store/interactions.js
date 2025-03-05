@@ -84,7 +84,7 @@ export const loadBalances = async (exchange, tokens, account, dispatch) => {
 
 }
 // --------------------------------------------
-// TRANSFER TOKENS (DEPOSIT & WITHDRAWS)
+// LOAD ALL ORDERS
 
 export const loadAllOrders = async (provider, exchange, dispatch) => {
 
@@ -137,7 +137,7 @@ export const transferTokens = async (provider, exchange, transferType, token, am
 }
 
 // --------------------------------------------
-// LOAD USER BALANCES (WALLET & EXCHANGE BALANCES)
+// ORDERS (BUY $ SELL)
 
 export const makeBuyOrder = async (provider, exchange, tokens, order, dispatch) => {
     const tokenGet = tokens[0].address
