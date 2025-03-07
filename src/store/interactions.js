@@ -52,6 +52,11 @@ export const loadExchange = async (provider, address, dispatch) => {
 }
 
 export const subscribeToEvents = (exchange, dispatch) => {
+    exchange.on('Cancel', (id, user, tokenGet, amountGet, tokenGive, amountGive, timestamp, event) => {
+        const order = event.args
+        dispatch({ type: 'ORDER_CANCEL_SUCCESS', order, event })
+    })
+
     exchange.on('Deposit', (token, user, amount, balance, event) => {
         dispatch({ type: 'TRANSFER_SUCCESS', event })
     })
@@ -66,24 +71,27 @@ export const subscribeToEvents = (exchange, dispatch) => {
     })
 }
 
-// --------------------------------------------
+// ------------------------------------------------------------------------------
 // LOAD USER BALANCES (WALLET & EXCHANGE BALANCES)
+
 
 export const loadBalances = async (exchange, tokens, account, dispatch) => {
     let balance = ethers.utils.formatUnits(await tokens[0].balanceOf(account), 18)
-    dispatch({ type: 'TOKEN_1_BALANCE_LOADED', balance})
+    dispatch({ type: 'TOKEN_1_BALANCE_LOADED', balance })
 
     balance = ethers.utils.formatUnits(await exchange.balanceOf(tokens[0].address, account), 18)
     dispatch({ type: 'EXCHANGE_TOKEN_1_BALANCE_LOADED', balance })
 
     balance = ethers.utils.formatUnits(await tokens[1].balanceOf(account), 18)
-    dispatch({ type: 'TOKEN_2_BALANCE_LOADED', balance})
+    dispatch({ type: 'TOKEN_2_BALANCE_LOADED', balance })
 
     balance = ethers.utils.formatUnits(await exchange.balanceOf(tokens[1].address, account), 18)
     dispatch({ type: 'EXCHANGE_TOKEN_2_BALANCE_LOADED', balance })
 
 }
-// --------------------------------------------
+
+
+// ------------------------------------------------------------------------------
 // LOAD ALL ORDERS
 
 export const loadAllOrders = async (provider, exchange, dispatch) => {
@@ -109,7 +117,8 @@ export const loadAllOrders = async (provider, exchange, dispatch) => {
     dispatch({ type: 'ALL_ORDERS_LOADED', allOrders })
 }
 
-// --------------------------------------------
+
+// ------------------------------------------------------------------------------
 // TRANSFER TOKENS (DEPOSIT & WITHDRAWS)
 
 export const transferTokens = async (provider, exchange, transferType, token, amount, dispatch) => {
@@ -131,13 +140,13 @@ export const transferTokens = async (provider, exchange, transferType, token, am
 
         await transaction.wait()
 
-    } catch(error) {
+    } catch (error) {
         dispatch({ type: 'TRANSFER_FAIL' })
     }
 }
 
-// --------------------------------------------
-// ORDERS (BUY $ SELL)
+// ------------------------------------------------------------------------------
+// ORDERS (BUY & SELL)
 
 export const makeBuyOrder = async (provider, exchange, tokens, order, dispatch) => {
     const tokenGet = tokens[0].address
@@ -151,7 +160,7 @@ export const makeBuyOrder = async (provider, exchange, tokens, order, dispatch) 
         const signer = await provider.getSigner()
         const transaction = await exchange.connect(signer).makeOrder(tokenGet, amountGet, tokenGive, amountGive)
         await transaction.wait()
-    } catch(error) {
+    } catch (error) {
         dispatch({ type: 'NEW_ORDER_FAIL' })
     }
 }
@@ -161,14 +170,30 @@ export const makeSellOrder = async (provider, exchange, tokens, order, dispatch)
     const amountGet = ethers.utils.parseUnits((order.amount * order.price).toString(), 18)
     const tokenGive = tokens[0].address
     const amountGive = ethers.utils.parseUnits(order.amount, 18)
-    
+
     dispatch({ type: 'NEW_ORDER_REQUEST' })
-    
+
     try {
         const signer = await provider.getSigner()
         const transaction = await exchange.connect(signer).makeOrder(tokenGet, amountGet, tokenGive, amountGive)
         await transaction.wait()
     } catch (error) {
         dispatch({ type: 'NEW_ORDER_FAIL' })
+    }
+}
+
+// ------------------------------------------------------------------------------
+// CANCEL ORDER
+
+export const cancelOrder = async (provider, exchange, order, dispatch) => {
+
+    dispatch({ type: 'ORDER_CANCEL_REQUEST' })
+
+    try {
+        const signer = await provider.getSigner()
+        const transaction = await exchange.connect(signer).cancelOrder(order.id)
+        await transaction.wait()
+    } catch (error) {
+        dispatch({ type: 'ORDER_CANCEL_FAIL' })
     }
 }

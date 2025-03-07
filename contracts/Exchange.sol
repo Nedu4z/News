@@ -29,14 +29,15 @@ contract Exchange {
         uint256 amountGive,
         uint256 timestamp
     );
-    event Cancel(// Here's the missing event declaration
-         uint256 id,
-         address user,
-         address tokenGet,
-         uint256 amountGet,
-         address tokenGive,
-         uint256 amountGive,
-         uint256 timestamp
+    event Cancel(
+        // Here's the missing event declaration
+        uint256 id,
+        address user,
+        address tokenGet,
+        uint256 amountGet,
+        address tokenGive,
+        uint256 amountGive,
+        uint256 timestamp
     );
     event Trade(
         uint256 id,
@@ -49,14 +50,14 @@ contract Exchange {
         uint256 timestamp
     );
     struct _Order {
-            //Attributes of an order
-            uint256 id;//Unique identifier order
-            address user;//User who made order
-            address tokenGet; //Address of the token they receieve
-            uint256 amountGet; //Amount they receieve
-            address tokenGive; //Address of the token they give
-            uint256 amountGive; //Amount they receive
-            uint256 timestamp;//when order was created
+        //Attributes of an order
+        uint256 id; //Unique identifier order
+        address user; //User who made order
+        address tokenGet; //Address of the token they receieve
+        uint256 amountGet; //Amount they receieve
+        address tokenGive; //Address of the token they give
+        uint256 amountGive; //Amount they receive
+        uint256 timestamp; //when order was created
     }
 
     constructor(address _feeAccount, uint256 _feePercent) {
@@ -73,6 +74,7 @@ contract Exchange {
         //Emit an event
         emit Deposit(_token, msg.sender, _amount, tokens[_token][msg.sender]);
     }
+
     function withdrawToken(address _token, uint256 _amount) public {
         //Ensure user has enough tokens to withdraw
         require(tokens[_token][msg.sender] >= _amount);
@@ -87,14 +89,13 @@ contract Exchange {
     }
 
     //Check Balance
-    function balanceOf(address _token, address _user)
-        public
-        view
-        returns (uint256)
-    {
+    function balanceOf(
+        address _token,
+        address _user
+    ) public view returns (uint256) {
         return tokens[_token][_user];
     }
-    
+
     // ...............
     // MAkE & CANCEL ORDERS
     function makeOrder(
@@ -102,12 +103,11 @@ contract Exchange {
         uint256 _amountGet,
         address _tokenGive,
         uint256 _amountGive
-        ) public {
-        
+    ) public {
         //Prevent orders if tokens aren't on exchange
         require(balanceOf(_tokenGive, msg.sender) >= _amountGive);
         // Instantiate a new order
-        orderCount ++;
+        orderCount++;
         orders[orderCount] = _Order(
             orderCount,
             msg.sender,
@@ -129,6 +129,7 @@ contract Exchange {
             block.timestamp
         );
     }
+
     function cancelOrder(uint256 _id) public {
         // Fetch order
         _Order storage _order = orders[_id];
@@ -142,9 +143,6 @@ contract Exchange {
         // Cancel the order
         orderCancelled[_id] = true;
 
-        
-
-
         // Emit event
         emit Cancel(
             _order.id,
@@ -156,6 +154,7 @@ contract Exchange {
             block.timestamp
         );
     }
+
     function fillOrder(uint256 _id) public {
         // 1. Must be valid orderId
         require(_id > 0 && _id <= orderCount, "Order does not exist");
@@ -166,20 +165,19 @@ contract Exchange {
 
         // Fetch order
         _Order storage _order = orders[_id];
-       
+
         _trade(
-        _order.id,
-        _order.user,
-        _order.tokenGet,
-        _order.amountGet,
-        _order.tokenGive,
-        _order.amountGive
+            _order.id,
+            _order.user,
+            _order.tokenGet,
+            _order.amountGet,
+            _order.tokenGive,
+            _order.amountGive
         );
 
         // Mark order as filled
         orderFilled[_order.id] = true;
     }
-
 
     function _trade(
         uint256 _orderId,
@@ -206,13 +204,12 @@ contract Exchange {
             tokens[_tokenGet][feeAccount] +
             _feeAmount;
 
-
         tokens[_tokenGive][_user] = tokens[_tokenGive][_user] - _amountGive;
         tokens[_tokenGive][msg.sender] =
             tokens[_tokenGive][msg.sender] +
             _amountGive;
 
-            // Emit trade
+        // Emit trade
         emit Trade(
             _orderId,
             msg.sender,

@@ -6,6 +6,7 @@ import { ethers } from 'ethers';
 const GREEN = '#25CE8F'
 const RED = '#F45353'
 
+
 const account = state => get(state, 'provider.account')
 const tokens = state => get(state, 'tokens.contracts')
 
@@ -21,14 +22,15 @@ const openOrders = state => {
     const openOrders = reject(all, (order) => {
         const orderFilled = filled.some((o) => o.id.toString() === order.id.toString())
         const orderCancelled = cancelled.some((o) => o.id.toString() === order.id.toString())
-        return(orderFilled || orderCancelled)
+        return (orderFilled || orderCancelled)
     })
 
     return openOrders
+
 }
 
-// ----------------------------------------------------------------------------------
-// MY OPEN ORDER
+// ------------------------------------------------------------------------------
+// MY OPEN ORDERS
 
 export const myOpenOrdersSelector = createSelector(
     account,
@@ -51,16 +53,15 @@ export const myOpenOrdersSelector = createSelector(
         orders = orders.sort((a, b) => b.timestamp - a.timestamp)
 
         return orders
-
     }
 )
 
 const decorateMyOpenOrders = (orders, tokens) => {
-    return(
+    return (
         orders.map((order) => {
             order = decorateOrder(order, tokens)
             order = decorateMyOpenOrder(order, tokens)
-            return(order)
+            return (order)
         })
     )
 }
@@ -85,7 +86,7 @@ const decorateOrder = (order, tokens) => {
         token1Amount = order.amountGet // The amount of mETH we want...
     } else {
         token0Amount = order.amountGet // The amount of DApp we want
-        token1Amount = order.amountGive // The amount of mETH we are giving
+        token1Amount = order.amountGive // The amount of mETH we are giving...
     }
 
     // Calculate token price to 5 decimal places
@@ -102,30 +103,30 @@ const decorateOrder = (order, tokens) => {
     })
 }
 
-// --------------------------------------------
-// ALL FILLED ORDER
+
+// ------------------------------------------------------------------------------
+// ALL FILLED ORDERS
 
 export const filledOrdersSelector = createSelector(
     filledOrders,
     tokens,
     (orders, tokens) => {
         if (!tokens[0] || !tokens[1]) { return }
-        
+
         // Filter orders by selected tokens
-    orders = orders.filter((o) => o.tokenGet === tokens[0].address || o.tokenGet === tokens[1].address)
-    orders = orders.filter((o) => o.tokenGive === tokens[0].address || o.tokenGive === tokens[1].address)
+        orders = orders.filter((o) => o.tokenGet === tokens[0].address || o.tokenGet === tokens[1].address)
+        orders = orders.filter((o) => o.tokenGive === tokens[0].address || o.tokenGive === tokens[1].address)
 
-    // Sort orders by time ascending for price comparison
-    orders = orders.sort((a, b) => a.timestamp - b.timestamp)
- 
-    // Decorate the orders
-    orders = decorateFilledOrders(orders, tokens)
+        // Sort orders by time ascending for price comparison
+        orders = orders.sort((a, b) => a.timestamp - b.timestamp)
 
-    // Sort orders by time ascending for price comparison
-    orders = orders.sort((a, b) => b.timestamp - a.timestamp)
-    console.log(orders)
+        // Decorate the orders
+        orders = decorateFilledOrders(orders, tokens)
 
-    return orders
+        // Sort orders by date descending for display
+        orders = orders.sort((a, b) => b.timestamp - a.timestamp)
+
+        return orders
 
     }
 )
@@ -136,24 +137,24 @@ const decorateFilledOrders = (orders, tokens) => {
 
     return (
         orders.map((order) => {
-        //decorate each individual order
-        order = decorateOrder(order, tokens)
-        order = decorateFilledOrder(order, previousOrder)
-        previousOrder = order // Update the previous order once its decorated
-        return order
+            // decorate each individual order
+            order = decorateOrder(order, tokens)
+            order = decorateFilledOrder(order, previousOrder)
+            previousOrder = order  // Update the previous order once it's decorated
+            return order
         })
     )
 }
 
 const decorateFilledOrder = (order, previousOrder) => {
-    return({
+    return ({
         ...order,
         tokenPriceClass: tokenPriceClass(order.tokenPrice, order.id, previousOrder)
     })
 }
 
 const tokenPriceClass = (tokenPrice, orderId, previousOrder) => {
-    // Show green price if only one ordeer exists
+    // Show green price if only one order exists
     if (previousOrder.id === orderId) {
         return GREEN
     }
@@ -167,7 +168,7 @@ const tokenPriceClass = (tokenPrice, orderId, previousOrder) => {
     }
 }
 
-// --------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // MY FILLED ORDERS
 
 export const myFilledOrdersSelector = createSelector(
@@ -189,19 +190,16 @@ export const myFilledOrdersSelector = createSelector(
         // Decorate orders - add display attributes
         orders = decorateMyFilledOrders(orders, account, tokens)
 
-        console.log(orders)
-
         return orders
-
     }
 )
 
 const decorateMyFilledOrders = (orders, account, tokens) => {
-    return(
+    return (
         orders.map((order) => {
             order = decorateOrder(order, tokens)
             order = decorateMyFilledOrder(order, account, tokens)
-            return(order)
+            return (order)
         })
     )
 }
@@ -210,14 +208,13 @@ const decorateMyFilledOrder = (order, account, tokens) => {
     const myOrder = order.creator === account
 
     let orderType
-    if(myOrder) {
+    if (myOrder) {
         orderType = order.tokenGive === tokens[1].address ? 'buy' : 'sell'
     } else {
         orderType = order.tokenGive === tokens[1].address ? 'sell' : 'buy'
-
     }
 
-    return({
+    return ({
         ...order,
         orderType,
         orderClass: (orderType === 'buy' ? GREEN : RED),
@@ -225,7 +222,8 @@ const decorateMyFilledOrder = (order, account, tokens) => {
     })
 }
 
-// --------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
 // ORDER BOOK
 
 export const orderBookSelector = createSelector(
@@ -234,43 +232,44 @@ export const orderBookSelector = createSelector(
     (orders, tokens) => {
         if (!tokens[0] || !tokens[1]) { return }
 
-    // Filter orders by selected tokens
-    orders = orders.filter((o) => o.tokenGet === tokens[0].address || o.tokenGet === tokens[1].address)
-    orders = orders.filter((o) => o.tokenGive === tokens[0].address || o.tokenGive === tokens[1].address)
+        // Filter orders by selected tokens
+        orders = orders.filter((o) => o.tokenGet === tokens[0].address || o.tokenGet === tokens[1].address)
+        orders = orders.filter((o) => o.tokenGive === tokens[0].address || o.tokenGive === tokens[1].address)
 
-    // Decorate orders
-    orders = decorateOrderBookOrders(orders, tokens)
+        // Decorate orders
+        orders = decorateOrderBookOrders(orders, tokens)
 
-    // Group orders by "orderType"
-    orders = groupBy(orders, 'orderType')
+        // Group orders by "orderType"
+        orders = groupBy(orders, 'orderType')
 
-    // Fetch buy orders
-    const buyOrders = get(orders, 'buy', [])
+        // Fetch buy orders
+        const buyOrders = get(orders, 'buy', [])
 
-    // Sort buy order by token price
-    orders = {
-        ...orders,
-        buyOrders: buyOrders.sort((a, b) => b.tokenPrice - a.tokenPrice)
+        // Sort buy orders by token price
+        orders = {
+            ...orders,
+            buyOrders: buyOrders.sort((a, b) => b.tokenPrice - a.tokenPrice)
+        }
+
+        // Fetch sell orders
+        const sellOrders = get(orders, 'sell', [])
+
+        // Sort sell orders by token price
+        orders = {
+            ...orders,
+            sellOrders: sellOrders.sort((a, b) => b.tokenPrice - a.tokenPrice)
+        }
+
+        return orders
     }
-
-    //Fetch sell orders
-    const sellOrders = get(orders, 'sell', [])
-
-    // Sort sell orders by token price
-    orders = {
-        ...orders,
-        sellOrders: sellOrders.sort((a, b) => b.tokenPrice - a.tokenPrice)
-    }
-    return orders 
-  }
 )
 
-const decorateOrderBookOrders = (orders, tokens)=> {
-    return(
+const decorateOrderBookOrders = (orders, tokens) => {
+    return (
         orders.map((order) => {
             order = decorateOrder(order, tokens)
             order = decorateOrderBookOrder(order, tokens)
-            return(order)
+            return (order)
         })
     )
 }
@@ -278,7 +277,7 @@ const decorateOrderBookOrders = (orders, tokens)=> {
 const decorateOrderBookOrder = (order, tokens) => {
     const orderType = order.tokenGive === tokens[1].address ? 'buy' : 'sell'
 
-    return({
+    return ({
         ...order,
         orderType,
         orderTypeClass: (orderType === 'buy' ? GREEN : RED),
@@ -286,7 +285,8 @@ const decorateOrderBookOrder = (order, tokens) => {
     })
 }
 
-// -----------------------------------------------------
+
+// ------------------------------------------------------------------------------
 // PRICE CHART
 
 export const priceChartSelector = createSelector(
@@ -295,33 +295,33 @@ export const priceChartSelector = createSelector(
     (orders, tokens) => {
         if (!tokens[0] || !tokens[1]) { return }
 
-    // Filter orders by selected tokens
-    orders = orders.filter((o) => o.tokenGet === tokens[0].address || o.tokenGet === tokens[1].address)
-    orders = orders.filter((o) => o.tokenGive === tokens[0].address || o.tokenGive === tokens[1].address)
+        // Filter orders by selected tokens
+        orders = orders.filter((o) => o.tokenGet === tokens[0].address || o.tokenGet === tokens[1].address)
+        orders = orders.filter((o) => o.tokenGive === tokens[0].address || o.tokenGive === tokens[1].address)
 
-    // Sort orders by date ascending to compare history
-    orders = orders.sort((a, b) => a.timestamp - b.timestamp)
+        // Sort orders by date ascending to compare history
+        orders = orders.sort((a, b) => a.timestamp - b.timestamp)
 
-    // Decorate orders - add display attributes
-    orders = orders.map((o) => decorateOrder(o, tokens))
+        // Decorate orders - add display attributes
+        orders = orders.map((o) => decorateOrder(o, tokens))
 
-    // Get last 2 orders for final price & price change
-    let secondLastOrder, lastOrder
-    [secondLastOrder, lastOrder] = orders.slice(orders.length - 2, orders.length)
+        // Get last 2 order for final price & price change
+        let secondLastOrder, lastOrder
+        [secondLastOrder, lastOrder] = orders.slice(orders.length - 2, orders.length)
 
-    // Get last order price
-    const lastPrice = get(lastOrder, 'tokenPrice', 0)
+        // get last order price
+        const lastPrice = get(lastOrder, 'tokenPrice', 0)
 
-    // get second last order price
-    const secondLastPrice = get(secondLastOrder, 'tokenPrice', 0)
+        // get second last order price
+        const secondLastPrice = get(secondLastOrder, 'tokenPrice', 0)
 
-    return ({
-        lastPrice,
-        lastPriceChange: (lastPrice >= secondLastPrice ? '+' : '-'),
-        series: [{
-            data: buildGraphData(orders)
-        }]
-    })
+        return ({
+            lastPrice,
+            lastPriceChange: (lastPrice >= secondLastPrice ? '+' : '-'),
+            series: [{
+                data: buildGraphData(orders)
+            }]
+        })
 
     }
 )
@@ -340,11 +340,11 @@ const buildGraphData = (orders) => {
 
         // Calculate price values: open, high, low, close
         const open = group[0] // first order
-        const high =  maxBy(group, 'tokenPrice') // high price
-        const low =  minBy(group, 'tokenPrice') // low price
-        const close =  group[group.length - 1] // last order
+        const high = maxBy(group, 'tokenPrice') // high price
+        const low = minBy(group, 'tokenPrice') // low price
+        const close = group[group.length - 1] // last order
 
-        return({
+        return ({
             x: new Date(hour),
             y: [open.tokenPrice, high.tokenPrice, low.tokenPrice, close.tokenPrice]
         })
