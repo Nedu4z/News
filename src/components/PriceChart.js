@@ -40,7 +40,7 @@ const PriceChart = () => {
 
         </div>
         </div>
-        {/* Price chart goes here */}
+
         {!account ? (
             <Banner text={'Please connect with Metamask'} />
         ) : (
