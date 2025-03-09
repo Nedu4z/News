@@ -21,6 +21,7 @@ const OrderBook = () => {
 
     const fillOrderHandler = (order) => {
         fillOrder(provider, exchange, order, dispatch)
+        console.log('Order Filled:', order)
     }
 
     return (
